@@ -16,6 +16,7 @@ import argparse
 import os
 import numpy as np
 import timeit
+import time
 
 import tensorflow as tf
 from tensorflow.keras import applications
