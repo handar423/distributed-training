@@ -91,8 +91,7 @@ log('Number of %ss: %d' % (device, 1))
 with tf.device(device):
     # Warm-up
     log('Running warmup...')
-    benchmark_step(first_batch=True)
-    timeit.timeit(lambda: benchmark_step(first_batch=False),
+    timeit.timeit(lambda: benchmark_step(),
                   number=args.num_warmup_batches)
 
     # Benchmark
