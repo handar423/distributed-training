@@ -5,6 +5,7 @@ import torch.optim as optim
 import torch.utils.data.distributed
 from torchvision import models
 import timeit
+import time
 import numpy as np
 
 # Benchmark settings
@@ -86,9 +87,12 @@ timeit.timeit(benchmark_step, number=args.num_warmup_batches)
 log('Running benchmark...')
 img_secs = []
 for x in range(args.num_iters):
-    time = timeit.timeit(benchmark_step, number=args.num_batches_per_iter)
-    img_sec = args.batch_size * args.num_batches_per_iter / time
-    log('Iter #%d: %.1f img/sec per %s' % (x, img_sec, device))
+    st_time = time.time()
+    benchmark_step()
+    en_time = time.time()
+    img_sec = args.batch_size / (en_time - st_time)
+    if x % 10 == 0:
+        log('Iter #%d: %.1f img/sec per %s' % (x, img_sec, device))
     img_secs.append(img_sec)
 
 # Results
