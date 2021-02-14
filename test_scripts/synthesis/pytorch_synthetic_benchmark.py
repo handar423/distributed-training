@@ -41,7 +41,7 @@ args = parser.parse_args()
 args.cuda = not args.no_cuda and torch.cuda.is_available()
 
 if args.cuda:
-    torch.cuda.set_device(1)
+    torch.cuda.set_device(0)
 
 cudnn.benchmark = True
 
