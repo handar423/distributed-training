@@ -21,9 +21,9 @@ parser = argparse.ArgumentParser(description='PyTorch ImageNet Example',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--model', type=str, default='resnet50',
                     help='model to benchmark')
-parser.add_argument('--train-dir', default=os.path.expanduser('/tmp/ramdisk'),
+parser.add_argument('--train-dir', default=os.path.expanduser('/data/yunshan'),
                     help='path to training data')
-parser.add_argument('--val-dir', default=os.path.expanduser('~/data/imagenet/validation'),
+parser.add_argument('--val-dir', default=os.path.expanduser('/data/'),
                     help='path to validation data')
 parser.add_argument('--log-dir', default='./logs',
                     help='tensorboard log directory')
