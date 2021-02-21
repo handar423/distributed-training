@@ -14,15 +14,16 @@ from tqdm import tqdm
 from logger import get_logger, log_time, sync_e
 import json
 import time
+import numpy as np
 
 # Training settings
 parser = argparse.ArgumentParser(description='PyTorch ImageNet Example',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--model', type=str, default='resnet50',
                     help='model to benchmark')
-parser.add_argument('--train-dir', default=os.path.expanduser('~/data/'),
+parser.add_argument('--train-dir', default=os.path.expanduser('/data/yunshan/imagenet-data/raw-data/train'),
                     help='path to training data')
-parser.add_argument('--val-dir', default=os.path.expanduser('~/data/'),
+parser.add_argument('--val-dir', default=os.path.expanduser('/data/yunshan/imagenet-data/raw-data/train'),
                     help='path to validation data')
 parser.add_argument('--log-dir', default='./logs',
                     help='tensorboard log directory')
@@ -160,6 +161,13 @@ if resume_from_epoch > 0:
 # hvd.broadcast_parameters(model.state_dict(), root_rank=0)
 # hvd.broadcast_optimizer_state(optimizer, root_rank=0)
 
+step1 = torch.cuda.Event(enable_timing=True)
+step14 = torch.cuda.Event(enable_timing=True)
+
+time_batch = []
+
+step1.record()
+
 def train(epoch):
     model.train()
     train_sampler.set_epoch(epoch)
@@ -215,6 +223,15 @@ def train(epoch):
             # Gradient is applied across all ranks
             lobj = {"ph": "X", "name": "update-gradients", "ts": time.time(), "pid": 0, "dur": 0}
             optimizer.step()
+            step14.record()
+            torch.cuda.synchronize()
+            time_batch.append(step14.elapsed_time(step1))
+            step1.record()
+            # if batch_idx == 3:
+            #     file = open("correct.log", "w")
+            #     for n, p in model.named_parameters():
+            #         print(p, file=file)
+            #     assert(False)
             lobj["dur"]=time.time()-lobj["ts"]
             model_logger.info(json.dumps(lobj))
 
@@ -310,3 +327,4 @@ for epoch in range(resume_from_epoch, args.epochs):
 
 lobj["dur"]=time.time()-lobj["ts"]
 model_logger.info(json.dumps(lobj))
+print("batch", np.mean(time_batch[40:]))
